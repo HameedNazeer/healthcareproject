@@ -50,6 +50,21 @@ stage('Docker login and push') {
                
             }
         }
-
+stage('deploy application to kubernetes'){
+  steps{
+    sh 'sudo chmod 400 ./terraform_files/mumbaikey.pem'
+    sh 'sudo scp -o StrictHostKeyChecking=no -i ./terraform_files/mumbaikey.pem deployment.yml ubuntu@3.109.14.87:/home/ubuntu/'
+    sh 'sudo scp -o StrictHostKeyChecking=no -i ./terraform_files/mumbaikey.pem service.yml ubuntu@3.109.14.87:/home/ubuntu/'
+    sh 'ssh -i ./terraform_files/mumbaikey.pem  ubuntu@3.109.14.87 minikube start'
+    script{
+    try{
+    sh 'ssh -i ./terraform_files/mumbaikey.pem  ubuntu@3.109.14.87 kubectl apply -f .'
+    }catch(error)
+    {
+    sh 'ssh -i ./terraform_files/mumbaikey.pem  ubuntu@3.109.14.87 kubectl apply -f .'
+}
+}
+}
+}
 }
 }
